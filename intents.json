@@ -1,0 +1,110 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "telford shop",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "Cancel"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "Help"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "Stop"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "OrdersTodayIntent",
+                    "slots": [],
+                    "samples": [
+                        "Order count",
+                        "Today's order count",
+                        "Number of orders in my shop today",
+                        "Number of orders in the shop today",
+                        "Number of orders today",
+                        "How many orders have there been in my shop today",
+                        "How many orders have there been today",
+                        "How many orders in my shop today",
+                        "How many orders have I had today",
+                        "How many orders today"
+                    ]
+                },
+                {
+                    "name": "OrdersYesterdayIntent",
+                    "slots": [],
+                    "samples": [
+                        "Yesterday count",
+                        "Yesterday's order count",
+                        "Number of orders in my shop yesterday",
+                        "Number of orders in the shop yesterday",
+                        "Number of orders yesterday",
+                        "How many orders were there in my shop yesterday",
+                        "How many orders were there yesterday",
+                        "How many orders in my shop yesterday",
+                        "How many orders did I have yesterday",
+                        "How many orders yesterday"
+                    ]
+                },
+                {
+                    "name": "GrossSalesTodayIntent",
+                    "slots": [],
+                    "samples": [
+                        "Gross sales",
+                        "Gross sales amount",
+                        "Gross sales today",
+                        "Gross sales amount today",
+                        "Orders value",
+                        "Orders value today",
+                        "Total orders value today",
+                        "Money made today",
+                        "Total money made",
+                        "How much money have we made today"
+                    ]
+                },
+                {
+                    "name": "GrossSalesYesterdayIntent",
+                    "slots": [],
+                    "samples": [
+                        "Gross sales yesterday",
+                        "Gross sales amount yesterday",
+                        "Yesterday gross sales",
+                        "Yesterday gross sales amount",
+                        "Yesterday orders value",
+                        "Orders value yesterday",
+                        "Total orders value yesterday",
+                        "Money made yesterday",
+                        "Total money made yesterday",
+                        "How much money did we make yesterday"
+                    ]
+                },
+                {
+                    "name": "MostRecentOrderIntent",
+                    "slots": [],
+                    "samples": [
+                        "When was my last order",
+                        "Tell me about my last order",
+                        "Most recent order",
+                        "Tell me about the most recent order",
+                        "Latest order",
+                        "How much was the latest order",
+                        "When was the latest order",
+                        "What is the latest order"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
