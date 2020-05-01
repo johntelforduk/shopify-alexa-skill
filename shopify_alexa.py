@@ -1,13 +1,12 @@
 from dotenv import load_dotenv
 from os import getenv
-from sys import argv
 import requests
 import json
 from datetime import datetime, timedelta
 import pytz
 
 
-DEBUG_ENABLED = '-d' in argv
+DEBUG_ENABLED = (getenv('DEBUG') == 'TRUE')
 
 
 def debug(msg):
@@ -149,7 +148,7 @@ class Skill:
 
         now = datetime.now(pytz.utc)
         local_now = now.astimezone(pytz.timezone('Europe/London'))
-        print('now = {}   local_now = {}'.format(now, local_now))
+        debug('Skill.date_as_str : now = {}   local_now = {}'.format(now, local_now))
 
         required_date = local_now + timedelta(days=delta_days)
         return required_date.strftime('%Y-%m-%d')
@@ -233,22 +232,26 @@ class Skill:
             datetime_format2 = '%Y-%m-%dT%H:%M:%S'
 
             now_utc = datetime.now(pytz.utc)
+
+            # TODO Get timezone from environment variable.
             # Obtained from, https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
             local_now = now_utc.astimezone(pytz.timezone('Europe/London'))
+
             local_now_str = str(local_now)
             now_dt = datetime.strptime(local_now_str[0:19], datetime_format1)
-            print('now_utc = {}   local_now = {}   local_now_str = {}   now_dt = {}'
+            debug('Skill.most_recent_order : now_utc = {}   local_now = {}   local_now_str = {}   now_dt = {}'
                   .format(now_utc, local_now, local_now_str, now_dt))
 
             order_time_str = order['created_at']
             order_dt = datetime.strptime(order_time_str[0:19], datetime_format2)
-            print('order_time_str = {}   order_dt = {}'.format(order_time_str, order_dt))
+            debug('Skill.most_recent_order : order_time_str = {}   order_dt = {}'.format(order_time_str, order_dt))
 
             diff = now_dt - order_dt
             diff_mins = int(diff.seconds / 60)
             hours = diff_mins // 60
             mins = diff_mins % 60
-            print('diff = {}   dif_mins = {}   hours = {}  mins = {}'.format(diff, diff_mins, hours, mins))
+            debug('Skill.most_recent_order : diff = {}   dif_mins = {}   hours = {}  mins = {}'
+                  .format(diff, diff_mins, hours, mins))
 
             if diff_mins <= 2:
                 return 'The most recent order was just now for ' + money_str
