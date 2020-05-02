@@ -11,8 +11,9 @@ this_skill.shop.get_orders(from_date=two_days_ago, to_date=today)
 
 chosen_date = this_skill.date_as_str(delta_days=0)
 orders = this_skill.shop.orders_on_date(target_date=chosen_date)
+print('Orders')
 for each_order in orders:
-    print(each_order)
+    print('{}  {}'.format(each_order['created_at'], each_order['total_price']))
 
 print()
 print('number_orders_today =', this_skill.number_orders_today())
