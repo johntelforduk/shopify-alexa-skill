@@ -41,6 +41,3 @@ PASSWORD=<your password>
 ```
 #### TODO
 * Make paginated requests to the Shopify REST Admin API. This will allow the skill to exceed current limit of 250 orders in last 3 days.
-
-#### Useful links
-Python [Shopify API](https://github.com/Shopify/shopify_python_api)
