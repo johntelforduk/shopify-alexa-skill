@@ -1,3 +1,5 @@
+# Shopify Alexa skill.
+
 from dotenv import load_dotenv
 from os import getenv
 import requests
@@ -41,7 +43,6 @@ class Shopify:
         """Obtain some reference data about the store."""
 
         # API documentation, https://shopify.dev/docs/admin-api/rest/reference/store-properties/shop
-
         url = self.shop_url + 'shop.json'       # Shop API
         request = requests.get(url)
 
@@ -130,7 +131,7 @@ class Shopify:
 
     def gross_sales(self, target_date: str) -> float:
         """Return the gross amount of sales in the shop currency on parm day.
-           Sales are returned as both an integer and a formatted strong."""
+           Sales are returned as both an integer and a formatted string."""
         total = 0.00
         orders = self.orders_on_date(target_date)
 
@@ -142,38 +143,47 @@ class Shopify:
 
 class Skill:
 
-    @staticmethod
-    def date_as_str(delta_days: int) -> str:
+    def __init__(self):
+        load_dotenv(verbose=True)       # Set operating system environment variables based on contents of .env file.
+        self.server_timezone = getenv('SERVER_TIMEZONE')
+
+        debug('Skill.__init__ : server_timezone = {}'.format(self.server_timezone))
+
+        self.shop = Shopify()
+        self.shop.get_store_info()                                  # Populate attributes with basic shop info.
+
+    def date_as_str(self, delta_days: int) -> str:
         """Return a date relative to today as a string in yyyy-mm-dd format."""
 
-        now = datetime.now(pytz.utc)
-        local_now = now.astimezone(pytz.timezone('Europe/London'))
-        debug('Skill.date_as_str : now = {}   local_now = {}'.format(now, local_now))
+        utc_now = datetime.now(pytz.utc)
+        local_now = utc_now.astimezone(pytz.timezone(self.server_timezone))
+        debug('Skill.date_as_str : utc_now = {}   local_now = {}'.format(utc_now, local_now))
 
         required_date = local_now + timedelta(days=delta_days)
         return required_date.strftime('%Y-%m-%d')
+
+    def today_str(self) -> str:
+        """Return today's date as a string in format yyyy-mm-dd."""
+        return self.date_as_str(delta_days=0)                       # Zero days from today=today.
+
+    def yesterday_str(self) -> str:
+        """Return yesterday's date as a string in format yyyy-mm-dd."""
+        return self.date_as_str(delta_days=-1)                      # -1 days from today=yesterday.
 
     def formatted_money(self, money: float) -> (int, str):
         """Return parm real as a tuple (integer amount of the money, string of money).
            The string includes the currency symbol."""
 
         # See, https://kite.com/python/answers/how-to-format-currency-in-python
-        total_as_str = "{:,.2f}".format(round(money, 2))                   # Round to nearest penny / cent.
+        total_as_str = "{:,.2f}".format(round(money, 2))            # Round to nearest penny / cent.
 
         sales_str = self.shop.money_format.replace('{{amount}}', total_as_str)
         return int(money), sales_str
 
-    def __init__(self):
-        self.shop = Shopify()
-        self.shop.get_store_info()                      # Populate attributes with basic shop info.
-
     def number_orders_today(self) -> str:
         """Return a string saying how many orders there have been today so far."""
 
-        # TODO New functions for today_str and yesterday_str
-
-        today = self.date_as_str(delta_days=0)          # Zero days from today=today.
-        orders = self.shop.orders_on_date(today)
+        orders = self.shop.orders_on_date(self.today_str())
         num_orders = self.shop.count_orders(orders)
 
         if num_orders == 0:
@@ -185,8 +195,8 @@ class Skill:
 
     def number_orders_yesterday(self) -> str:
         """Return a string saying how many orders there were yesterday."""
-        yesterday = self.date_as_str(delta_days=-1)          # Zero days from today=today.
-        orders = self.shop.orders_on_date(yesterday)
+
+        orders = self.shop.orders_on_date(self.yesterday_str())
         num_orders = self.shop.count_orders(orders)
 
         if num_orders == 0:
@@ -198,8 +208,8 @@ class Skill:
 
     def gross_sales_today(self) -> str:
         """Return a string saying what the gross sales are today so far."""
-        today = self.date_as_str(delta_days=0)                  # Zero days from today=today.
-        sales = self.shop.gross_sales(today)                    # Obtain today's sales as a float.
+
+        sales = self.shop.gross_sales(self.today_str())         # Obtain today's sales as a float.
         sales_int, sales_str = self.formatted_money(sales)      # Obtain formatted string of the sales.
 
         if sales_int == 0:
@@ -209,8 +219,8 @@ class Skill:
 
     def gross_sales_yesterday(self) -> str:
         """Return a string saying what the gross sales were yesterday."""
-        yesterday = self.date_as_str(delta_days=-1)          # -1 days from today=yesterday.
-        sales = self.shop.gross_sales(yesterday)                    # Obtain today's sales as a float.
+
+        sales = self.shop.gross_sales(self.yesterday_str())     # Obtain yesterday's sales as a float.
         sales_int, sales_str = self.formatted_money(sales)      # Obtain formatted string of the sales.
 
         if sales_int == 0:
@@ -231,16 +241,13 @@ class Skill:
             datetime_format1 = '%Y-%m-%d %H:%M:%S'
             datetime_format2 = '%Y-%m-%dT%H:%M:%S'
 
-            now_utc = datetime.now(pytz.utc)
-
-            # TODO Get timezone from environment variable.
-            # Obtained from, https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
-            local_now = now_utc.astimezone(pytz.timezone('Europe/London'))
+            utc_now = datetime.now(pytz.utc)
+            local_now = utc_now.astimezone(pytz.timezone(self.server_timezone))
 
             local_now_str = str(local_now)
             now_dt = datetime.strptime(local_now_str[0:19], datetime_format1)
-            debug('Skill.most_recent_order : now_utc = {}   local_now = {}   local_now_str = {}   now_dt = {}'
-                  .format(now_utc, local_now, local_now_str, now_dt))
+            debug('Skill.most_recent_order : utc_now = {}   local_now = {}   local_now_str = {}   now_dt = {}'
+                  .format(utc_now, local_now, local_now_str, now_dt))
 
             order_time_str = order['created_at']
             order_dt = datetime.strptime(order_time_str[0:19], datetime_format2)
